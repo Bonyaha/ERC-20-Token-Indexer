@@ -1,16 +1,6 @@
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Heading,
-  Image,
-  Input,
-  SimpleGrid,
-  Text,
-} from '@chakra-ui/react';
 import { Alchemy, Network, Utils } from 'alchemy-sdk';
 import { useState } from 'react';
+import './App.css';
 
 function App() {
   const [userAddress, setUserAddress] = useState('');
@@ -20,12 +10,13 @@ function App() {
 
   async function getTokenBalance() {
     const config = {
-      apiKey: '<-- COPY-PASTE YOUR ALCHEMY API KEY HERE -->',
+      apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
       network: Network.ETH_MAINNET,
     };
 
     const alchemy = new Alchemy(config);
     const data = await alchemy.core.getTokenBalances(userAddress);
+    console.log(`The balances of ${userAddress} address are:`, data);
 
     setResults(data);
 
@@ -41,78 +32,63 @@ function App() {
     setTokenDataObjects(await Promise.all(tokenDataPromises));
     setHasQueried(true);
   }
+
   return (
-    <Box w="100vw">
-      <Center>
-        <Flex
-          alignItems={'center'}
-          justifyContent="center"
-          flexDirection={'column'}
-        >
-          <Heading mb={0} fontSize={36}>
-            ERC-20 Token Indexer
-          </Heading>
-          <Text>
-            Plug in an address and this website will return all of its ERC-20
-            token balances!
-          </Text>
-        </Flex>
-      </Center>
-      <Flex
-        w="100%"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent={'center'}
-      >
-        <Heading mt={42}>
+    <div className="container">
+      <div className="header">
+        <h1 className="title">ERC-20 Token Indexer</h1>
+        <p className="subtitle">
+          Plug in an address and this website will return all of its ERC-20 token balances!
+        </p>
+      </div>
+
+      <div className="input-section">
+        <h2 className="section-title">
           Get all the ERC-20 token balances of this address:
-        </Heading>
-        <Input
+        </h2>
+        <input
+          type="text"
           onChange={(e) => setUserAddress(e.target.value)}
-          color="black"
-          w="600px"
-          textAlign="center"
-          p={4}
-          bgColor="white"
-          fontSize={24}
+          className="address-input"
+          placeholder="Enter address..."
         />
-        <Button fontSize={20} onClick={getTokenBalance} mt={36} bgColor="blue">
+        <button onClick={getTokenBalance} className="check-button">
           Check ERC-20 Token Balances
-        </Button>
+        </button>
+      </div>
 
-        <Heading my={36}>ERC-20 token balances:</Heading>
+      <h2 className="balance-title">ERC-20 token balances:</h2>
 
-        {hasQueried ? (
-          <SimpleGrid w={'90vw'} columns={4} spacing={24}>
-            {results.tokenBalances.map((e, i) => {
-              return (
-                <Flex
-                  flexDir={'column'}
-                  color="white"
-                  bg="blue"
-                  w={'20vw'}
-                  key={e.id}
-                >
-                  <Box>
-                    <b>Symbol:</b> ${tokenDataObjects[i].symbol}&nbsp;
-                  </Box>
-                  <Box>
-                    <b>Balance:</b>&nbsp;
-                    {Utils.formatUnits(
-                      e.tokenBalance,
-                      tokenDataObjects[i].decimals
-                    )}
-                  </Box>
-                  <Image src={tokenDataObjects[i].logo} />
-                </Flex>
-              );
-            })}
-          </SimpleGrid>
-        ) : (
-          'Please make a query! This may take a few seconds...'
-        )}
-      </Flex>
-    </Box>
+      {hasQueried ? (
+        <div className="token-grid">
+          {results.tokenBalances.map((e, i) => (
+            <div key={e.id} className="token-card">
+              <div className="token-info">
+                <b>Symbol:</b> ${tokenDataObjects[i].symbol}
+              </div>
+              <div className="token-info">
+                <b>Balance:</b>{' '}
+                {Utils.formatUnits(
+                  e.tokenBalance,
+                  tokenDataObjects[i].decimals
+                )}
+              </div>
+              {tokenDataObjects[i].logo && (
+                <img 
+                  src={tokenDataObjects[i].logo} 
+                  alt={`${tokenDataObjects[i].symbol} logo`}
+                  className="token-logo" 
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="loading-text">
+          Please make a query! This may take a few seconds...
+        </p>
+      )}
+    </div>
   );
 }
 

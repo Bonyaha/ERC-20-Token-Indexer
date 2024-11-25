@@ -1,0 +1,112 @@
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .title {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .subtitle {
+    font-size: 18px;
+    color: #666;
+  }
+  
+  .input-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .address-input {
+    width: 100%;
+    max-width: 600px;
+    padding: 15px;
+    font-size: 18px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .check-button {
+    padding: 12px 24px;
+    font-size: 18px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .check-button:hover {
+    background-color: #2c5282;
+  }
+  
+  .balance-title {
+    font-size: 24px;
+    text-align: center;
+    margin: 40px 0;
+  }
+  
+  .token-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .token-card {
+    background-color: #3182ce;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .token-info {
+    font-size: 16px;
+  }
+  
+  .token-logo {
+    width: 100%;
+    max-width: 100px;
+    height: auto;
+    margin: 10px auto 0;
+    display: block;
+  }
+  
+  .loading-text {
+    text-align: center;
+    color: #666;
+    font-size: 18px;
+  }
+  
+  @media (max-width: 768px) {
+    .token-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .address-input {
+      width: 90%;
+    }
+  }
