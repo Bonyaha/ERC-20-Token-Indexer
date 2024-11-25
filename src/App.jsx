@@ -62,7 +62,7 @@ function App() {
       {hasQueried ? (
         <div className="token-grid">
           {results.tokenBalances.map((e, i) => (
-            <div key={e.id} className="token-card">
+            <div key={`${e.contractAddress}-${i}`} className="token-card">
               <div className="token-info">
                 <b>Symbol:</b> ${tokenDataObjects[i].symbol}
               </div>
