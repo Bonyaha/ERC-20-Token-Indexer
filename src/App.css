@@ -1,112 +1,84 @@
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Container styles */
 .container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  
-  .title {
-    font-size: 36px;
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  .subtitle {
-    font-size: 18px;
-    color: #666;
-  }
-  
-  .input-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 40px;
-  }
-  
-  .section-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .address-input {
-    width: 100%;
-    max-width: 600px;
-    padding: 15px;
-    font-size: 18px;
-    text-align: center;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  
-  .check-button {
-    padding: 12px 24px;
-    font-size: 18px;
-    background-color: #3182ce;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .check-button:hover {
-    background-color: #2c5282;
-  }
-  
-  .balance-title {
-    font-size: 24px;
-    text-align: center;
-    margin: 40px 0;
-  }
-  
-  .token-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 20px;
-  }
-  
-  .token-card {
-    background-color: #3182ce;
-    color: white;
-    padding: 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .token-info {
-    font-size: 16px;
-  }
-  
-  .token-logo {
-    width: 100%;
-    max-width: 100px;
-    height: auto;
-    margin: 10px auto 0;
-    display: block;
-  }
-  
-  .loading-text {
-    text-align: center;
-    color: #666;
-    font-size: 18px;
-  }
-  
-  @media (max-width: 768px) {
-    .token-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .address-input {
-      width: 90%;
-    }
-  }
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.heading {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.subheading {
+  font-size: 18px;
+  color: #555;
+}
+
+.input-container {
+  margin: 40px auto 20px;
+}
+
+.input-field {
+  width: 100%;
+  max-width: 600px;
+  padding: 10px;
+  font-size: 18px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Results Grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin: 40px 0;
+}
+
+.result-card {
+  background-color: #007bff;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.result-card img {
+  max-width: 100px;
+  display: block;
+  margin: 10px auto 0;
+}
+
+/* Query placeholder */
+.query-placeholder {
+  font-size: 18px;
+  color: #555;
+}
