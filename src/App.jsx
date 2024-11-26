@@ -32,7 +32,7 @@ function App() {
   async function getTokenBalance() {
     const config = {
       apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
-      network: Network.ETH_SEPOLIA,
+      network: Network.ETH_MAINNET,
     };
 
     const alchemy = new Alchemy(config);
@@ -53,6 +53,11 @@ function App() {
     setTokenDataObjects(await Promise.all(tokenDataPromises));
     setHasQueried(true);
   }
+console.log('address is: ', userAddress);
+console.log('hasQueried: ', hasQueried);
+
+console.log('results  are: ', results);
+
 
   return (
     <div className="container">
