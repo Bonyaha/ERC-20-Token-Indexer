@@ -5,6 +5,7 @@ import './App.css';
 
 function App() {
   const [userAddress, setUserAddress] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
@@ -18,7 +19,7 @@ function App() {
         //await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
         const address = await signer.getAddress();
-        setUserAddress(address);
+        setWalletAddress(address);
         setWalletConnected(true);
         console.log("Wallet connected:", address);
       } catch (error) {
@@ -29,14 +30,19 @@ function App() {
     }
   }
 
-  async function getTokenBalance() {
+  async function getTokenBalance() {    
+  setHasQueried(false);
+
     const config = {
       apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
       network: Network.ETH_MAINNET,
     };
 
     const alchemy = new Alchemy(config);
-    const data = await alchemy.core.getTokenBalances(userAddress);
+    console.log('address, used in getTokenBalance is: ', userAddress);
+    const address = userAddress ? userAddress : walletAddress;
+    
+    const data = await alchemy.core.getTokenBalances(address);
     console.log(`The balances of ${userAddress} address are:`, data);
 
     setResults(data);
@@ -49,14 +55,17 @@ function App() {
       );
       tokenDataPromises.push(tokenData);
     }
-
+    
     setTokenDataObjects(await Promise.all(tokenDataPromises));
     setHasQueried(true);
+    console.log('tokenDataObjects in getTokenBalance are: ', tokenDataObjects);
+    
   }
-console.log('address is: ', userAddress);
-console.log('hasQueried: ', hasQueried);
+//console.log('address is: ', userAddress);
+//console.log('hasQueried: ', hasQueried);
+console.log('results are: ', results.tokenBalances?.length);
 
-console.log('results  are: ', results);
+console.log('tokenDataObjects are: ', tokenDataObjects.length);
 
 
   return (
@@ -78,7 +87,7 @@ console.log('results  are: ', results);
 
       {walletConnected && (
         <div className="wallet-info">
-          <p>Connected Wallet: {userAddress}</p>
+          <p>Connected Wallet: {walletAddress}</p>
         </div>
       )}
 
@@ -101,7 +110,7 @@ console.log('results  are: ', results);
       <h2 className="balance-title">ERC-20 token balances:</h2>
 
       {hasQueried ? (
-        <div className="token-grid">
+          <div className="token-grid">
           {results.tokenBalances.map((e, i) => (
             <div key={`${e.contractAddress}-${i}`} className="token-card">
               <div className="token-info">
