@@ -1,4 +1,5 @@
 import { Alchemy, Network, Utils } from 'alchemy-sdk';
+import { BrowserProvider, ethers } from 'ethers';
 import { useState } from 'react';
 import './App.css';
 
@@ -7,11 +8,31 @@ function App() {
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
+  const [walletConnected, setWalletConnected] = useState(false);
+
+  // Connect Wallet Function
+  async function connectWallet() {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        const provider = new BrowserProvider(window.ethereum);
+        //await provider.send("eth_requestAccounts", []);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        setUserAddress(address);
+        setWalletConnected(true);
+        console.log("Wallet connected:", address);
+      } catch (error) {
+        console.error("Error connecting wallet:", error);
+      }
+    } else {
+      alert("MetaMask is not installed. Please install MetaMask and try again.");
+    }
+  }
 
   async function getTokenBalance() {
     const config = {
       apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
-      network: Network.ETH_MAINNET,
+      network: Network.ETH_SEPOLIA,
     };
 
     const alchemy = new Alchemy(config);
@@ -38,10 +59,25 @@ function App() {
       <div className="header">
         <h1 className="title">ERC-20 Token Indexer</h1>
         <p className="subtitle">
-          Plug in an address and this website will return all of its ERC-20 token balances!
+        Connect your wallet or enter an address to check all ERC-20 token
+        balances associated with it!
         </p>
       </div>
 
+      {/* Wallet Connection Section */}
+      {!walletConnected && (
+        <button onClick={connectWallet} className="connect-wallet-button">
+          Connect Wallet
+        </button>
+      )}
+
+      {walletConnected && (
+        <div className="wallet-info">
+          <p>Connected Wallet: {userAddress}</p>
+        </div>
+      )}
+
+      {/* Input Section */}
       <div className="input-section">
         <h2 className="section-title">
           Get all the ERC-20 token balances of this address:
