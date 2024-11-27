@@ -139,7 +139,10 @@ console.log('tokenDataObjects are: ', tokenDataObjects.length);
       <h2 className="balance-title">ERC-20 token balances:</h2>
 
       {loading ? ( // Show loading indicator
-        <p className="loading-text">Loading token balances, please wait...</p>
+        <div className="loading-text">
+        <div className="loading-spinner"></div>
+        Loading token balances, please wait...
+      </div>
       ) : hasQueried ? (
         <div className="token-grid">
           {results.tokenBalances.map((e, i) => (
