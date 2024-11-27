@@ -3,6 +3,13 @@ import { BrowserProvider, ethers } from 'ethers';
 import { useState } from 'react';
 import './App.css';
 
+const config = {
+  apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
+  network: Network.ETH_MAINNET,
+};
+
+const alchemy = new Alchemy(config);
+
 function App() {
   const [userAddress, setUserAddress] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
@@ -30,20 +37,30 @@ function App() {
     }
   }
 
-  async function getTokenBalance() {    
+  async function getQueryBalance(){    
+    const isAddress = ethers.isAddress(userAddress);
+    const isENS = await alchemy.core.resolveName(userAddress);
+    if (!isAddress && isENS == null){
+      alert("Please type a valid address!");
+    } else {
+      await getTokenBalance(userAddress);
+    }
+  }
+
+  async function getTokenBalance(address) {    
+    /* Without changing hasQueried, I got an error: TypeError: can't access property "symbol", tokenDataObjects[i] is undefined
+    results and tokenDataObjects are different at the moment of rendering (see logs below).
+    There’s a small time window between when setResults(data) is called and when setTokenDataObjects finishes updating.
+    If hasQueried remains true, the token-grid renders immediately after setResults, but before setTokenDataObjects completes.
+    This results in undefined values for tokenDataObjects[i].
+    It works because it tells React not to render the token-grid.
+    Once setTokenDataObjects finishes, you call setHasQueried(true) to re-render the token-grid with the correct data.*/
   setHasQueried(false);
 
-    const config = {
-      apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
-      network: Network.ETH_MAINNET,
-    };
-
-    const alchemy = new Alchemy(config);
-    console.log('address, used in getTokenBalance is: ', userAddress);
-    const address = userAddress ? userAddress : walletAddress;
+    console.log('address, used in getTokenBalance is: ', address);    
     
     const data = await alchemy.core.getTokenBalances(address);
-    console.log(`The balances of ${userAddress} address are:`, data);
+    console.log(`The balances of ${address} address are:`, data);
 
     setResults(data);
 
@@ -61,6 +78,7 @@ function App() {
     console.log('tokenDataObjects in getTokenBalance are: ', tokenDataObjects);
     
   }
+
 //console.log('address is: ', userAddress);
 //console.log('hasQueried: ', hasQueried);
 console.log('results are: ', results.tokenBalances?.length);
@@ -88,6 +106,9 @@ console.log('tokenDataObjects are: ', tokenDataObjects.length);
       {walletConnected && (
         <div className="wallet-info">
           <p>Connected Wallet: {walletAddress}</p>
+          <button onClick={()=>getTokenBalance(walletAddress)} className="check-button">
+          Click to see your ERC-20 Token Balances
+        </button>
         </div>
       )}
 
@@ -97,12 +118,13 @@ console.log('tokenDataObjects are: ', tokenDataObjects.length);
           Get all the ERC-20 token balances of this address:
         </h2>
         <input
+          id="inputAddress"
           type="text"
           onChange={(e) => setUserAddress(e.target.value)}
           className="address-input"
           placeholder="Enter address..."
         />
-        <button onClick={getTokenBalance} className="check-button">
+        <button onClick={getQueryBalance} className="check-button">
           Check ERC-20 Token Balances
         </button>
       </div>
