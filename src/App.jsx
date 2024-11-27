@@ -17,6 +17,7 @@ function App() {
   const [hasQueried, setHasQueried] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Connect Wallet Function
   async function connectWallet() {
@@ -55,27 +56,33 @@ function App() {
     This results in undefined values for tokenDataObjects[i].
     It works because it tells React not to render the token-grid.
     Once setTokenDataObjects finishes, you call setHasQueried(true) to re-render the token-grid with the correct data.*/
-  setHasQueried(false);
-
-    console.log('address, used in getTokenBalance is: ', address);    
+    setLoading(true);
+    setHasQueried(false);
+    try{
+      console.log('address, used in getTokenBalance is: ', address);    
     
-    const data = await alchemy.core.getTokenBalances(address);
-    console.log(`The balances of ${address} address are:`, data);
-
-    setResults(data);
-
-    const tokenDataPromises = [];
-
-    for (let i = 0; i < data.tokenBalances.length; i++) {
-      const tokenData = alchemy.core.getTokenMetadata(
-        data.tokenBalances[i].contractAddress
-      );
-      tokenDataPromises.push(tokenData);
-    }
-    
-    setTokenDataObjects(await Promise.all(tokenDataPromises));
-    setHasQueried(true);
-    console.log('tokenDataObjects in getTokenBalance are: ', tokenDataObjects);
+      const data = await alchemy.core.getTokenBalances(address);
+      console.log(`The balances of ${address} address are:`, data);
+  
+      setResults(data);
+  
+      const tokenDataPromises = [];
+  
+      for (let i = 0; i < data.tokenBalances.length; i++) {
+        const tokenData = alchemy.core.getTokenMetadata(
+          data.tokenBalances[i].contractAddress
+        );
+        tokenDataPromises.push(tokenData);
+      }
+      
+      setTokenDataObjects(await Promise.all(tokenDataPromises));
+      setHasQueried(true);
+      console.log('tokenDataObjects in getTokenBalance are: ', tokenDataObjects);}
+      catch (error) {
+        console.error("Error fetching token balances:", error);
+      } finally {
+        setLoading(false); // End loading
+      }   
     
   }
 
@@ -131,8 +138,10 @@ console.log('tokenDataObjects are: ', tokenDataObjects.length);
 
       <h2 className="balance-title">ERC-20 token balances:</h2>
 
-      {hasQueried ? (
-          <div className="token-grid">
+      {loading ? ( // Show loading indicator
+        <p className="loading-text">Loading token balances, please wait...</p>
+      ) : hasQueried ? (
+        <div className="token-grid">
           {results.tokenBalances.map((e, i) => (
             <div key={`${e.contractAddress}-${i}`} className="token-card">
               <div className="token-info">
