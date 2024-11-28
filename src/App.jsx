@@ -4,6 +4,30 @@ import pLimit from 'p-limit';
 import { useState } from 'react';
 import './App.css';
 
+const CACHE_EXPIRY_MS = 2 * 60 * 60 * 1000; // 1 day in milliseconds
+// Helper functions for localStorage-based cache
+function getCachedTokenMetadata(contractAddress) {
+  const cacheEntry = JSON.parse(localStorage.getItem(`tokenMetadata_${contractAddress}`));
+  if (!cacheEntry) return null;
+
+  const { metadata, timestamp } = cacheEntry;
+  if (Date.now() - timestamp > CACHE_EXPIRY_MS) {
+    // If the cached entry is expired, remove it
+    localStorage.removeItem(`tokenMetadata_${contractAddress}`);
+    return null;
+  }
+
+  return metadata;
+}
+
+function cacheTokenMetadata(contractAddress, metadata) {
+  const cacheEntry = {
+    metadata,
+    timestamp: Date.now(),
+  };
+  localStorage.setItem(`tokenMetadata_${contractAddress}`, JSON.stringify(cacheEntry));
+}
+
 const config = {
   apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
   network: Network.ETH_MAINNET,
@@ -50,7 +74,7 @@ function App() {
   }
 
   function formatTokenBalance(balance, maxIntegerDigits = 6, maxDecimalDigits = 4) {
-    console.log(balance);
+    //console.log(balance);
 
     // Split into integer and decimal parts
     const [integer, decimal] = balance.split('.');
@@ -82,7 +106,7 @@ function App() {
       console.log('address, used in getTokenBalance is: ', address);
 
       const data = await alchemy.core.getTokenBalances(address);
-      console.log(`The balances of ${address} address are:`, data);
+      //console.log(`The balances of ${address} address are:`, data);
 
       setResults(data);
 
@@ -100,9 +124,25 @@ function App() {
       Once one of the 5 requests finishes, the next request from the remaining 95 is sent.
       This process continues until all 100 tokens are processed.*/
 
+      //console.log('cache is: ', tokenMetadataCache);
+
       const limit = pLimit(5); // Adjust concurrency level
-      const tokenDataPromises = data.tokenBalances.map((token) =>
-        limit(() => alchemy.core.getTokenMetadata(token.contractAddress))
+      const tokenDataPromises = data.tokenBalances.map(async(token) => {
+        const contractAddress = token.contractAddress;
+        const cachedMetadata = getCachedTokenMetadata(contractAddress);
+        if (cachedMetadata) {
+          console.log('Metadata fetched from cache:', cachedMetadata);
+          return cachedMetadata;
+        }
+        // If not cached, fetch metadata and store in cache
+        console.log('Fetching metadata for address:', contractAddress);
+        const metadata = await limit(() => alchemy.core.getTokenMetadata(contractAddress));
+        //console.log(metadata);
+        
+        cacheTokenMetadata(contractAddress, metadata);
+
+        return metadata;
+      }
       );
 
       setTokenDataObjects(await Promise.all(tokenDataPromises));
@@ -119,9 +159,9 @@ function App() {
 
   //console.log('address is: ', userAddress);
   //console.log('hasQueried: ', hasQueried);
-  console.log('results are: ', results.tokenBalances?.length);
+  //console.log('results are: ', results.tokenBalances?.length);
 
-  console.log('tokenDataObjects are: ', tokenDataObjects.length);
+  console.log('tokenDataObjects are: ', tokenDataObjects[0]?.decimals);
 
 
   return (
@@ -201,8 +241,7 @@ function App() {
                   >
                     {formatTokenBalance(
                       Utils.formatUnits(
-                        e.tokenBalance,
-                        tokenDataObjects[i].decimals
+                        e.tokenBalance
                       )
                     )}
                   </span>
