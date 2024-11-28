@@ -1,5 +1,6 @@
 import { Alchemy, Network, Utils } from 'alchemy-sdk';
 import { BrowserProvider, ethers } from 'ethers';
+import pLimit from 'p-limit';
 import { useState } from 'react';
 import './App.css';
 
@@ -38,7 +39,7 @@ function App() {
     }
   }
 
-  async function getQueryBalance() {    
+  async function getQueryBalance() {
     const isAddress = ethers.isAddress(userAddress);
     const isENS = await alchemy.core.resolveName(userAddress);
     if (!isAddress && isENS == null) {
@@ -85,14 +86,24 @@ function App() {
 
       setResults(data);
 
-      const tokenDataPromises = [];
+      /* const tokenDataPromises = [];
 
       for (let i = 0; i < data.tokenBalances.length; i++) {
         const tokenData = alchemy.core.getTokenMetadata(
           data.tokenBalances[i].contractAddress
         );
         tokenDataPromises.push(tokenData);
-      }
+      } */
+
+      /* Limit concurrent requests to avoid overwhelming the server 
+      Instead of sending 100 requests at once, the app sends 5 at a time.
+      Once one of the 5 requests finishes, the next request from the remaining 95 is sent.
+      This process continues until all 100 tokens are processed.*/
+
+      const limit = pLimit(5); // Adjust concurrency level
+      const tokenDataPromises = data.tokenBalances.map((token) =>
+        limit(() => alchemy.core.getTokenMetadata(token.contractAddress))
+      );
 
       setTokenDataObjects(await Promise.all(tokenDataPromises));
       setHasQueried(true);
@@ -137,7 +148,7 @@ function App() {
             onClick={() => getTokenBalance(walletAddress)}
             className="check-button"
             disabled={loading}
-            >
+          >
             {loading ? 'Loading...' : 'Click to see your ERC-20 Token Balances'}
           </button>
         </div>
@@ -160,7 +171,7 @@ function App() {
           onClick={getQueryBalance}
           className="check-button"
           disabled={loading}
-          >
+        >
           {loading ? 'Loading...' : 'Check ERC-20 Token Balances'}
         </button>
       </div>
@@ -174,42 +185,42 @@ function App() {
         </div>
       ) : hasQueried ? (
         results.tokenBalances.length > 0 ? (
-        <div className="token-grid">
-          {results.tokenBalances.map((e, i) => (
-            <div key={`${e.contractAddress}-${i}`} className="token-card">
-              <div className="token-info">
-                <b>Symbol:</b> {tokenDataObjects[i].symbol}
-              </div>
-              <div className="token-info">
-                <b>Balance:</b>{' '}
-                <span
-                  title={Utils.formatUnits(
-                    e.tokenBalance,
-                    tokenDataObjects[i].decimals
-                  )}
-                >
-                  {formatTokenBalance(
-                    Utils.formatUnits(
+          <div className="token-grid">
+            {results.tokenBalances.map((e, i) => (
+              <div key={`${e.contractAddress}-${i}`} className="token-card">
+                <div className="token-info">
+                  <b>Symbol:</b> {tokenDataObjects[i].symbol}
+                </div>
+                <div className="token-info">
+                  <b>Balance:</b>{' '}
+                  <span
+                    title={Utils.formatUnits(
                       e.tokenBalance,
                       tokenDataObjects[i].decimals
-                    )
-                  )}
-                </span>
+                    )}
+                  >
+                    {formatTokenBalance(
+                      Utils.formatUnits(
+                        e.tokenBalance,
+                        tokenDataObjects[i].decimals
+                      )
+                    )}
+                  </span>
+                </div>
+                {tokenDataObjects[i].logo && (
+                  <img
+                    src={tokenDataObjects[i].logo}
+                    alt={`${tokenDataObjects[i].symbol} logo`}
+                    className="token-logo"
+                  />
+                )}
               </div>
-              {tokenDataObjects[i].logo && (
-                <img
-                  src={tokenDataObjects[i].logo}
-                  alt={`${tokenDataObjects[i].symbol} logo`}
-                  className="token-logo"
-                />
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         )
-        : (
-          <p className="no-tokens-text">No tokens found for this address.</p>
-        )
+          : (
+            <p className="no-tokens-text">No tokens found for this address.</p>
+          )
       ) : (
         <p className="loading-text">
           Please make a query! This may take a few seconds...
