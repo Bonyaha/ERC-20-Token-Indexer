@@ -97,38 +97,16 @@ function App() {
     return truncatedInteger + formattedDecimal;
   }
 
-  async function getTokenBalance(address) {
-    /* Without changing hasQueried, I got an error: TypeError: can't access property "symbol", tokenDataObjects[i] is undefined
-    results and tokenDataObjects are different at the moment of rendering (see logs below).
-    There’s a small time window between when setResults(data) is called and when setTokenDataObjects finishes updating.
-    If hasQueried remains true, the token-grid renders immediately after setResults, but before setTokenDataObjects completes.
-    This results in undefined values for tokenDataObjects[i].
-    It works because it tells React not to render the token-grid.
-    Once setTokenDataObjects finishes, you call setHasQueried(true) to re-render the token-grid with the correct data.*/
+  async function getTokenBalance(address) {    
     setLoading(true);
-    setHasQueried(false);
+    //setHasQueried(false);
     try {
       console.log('address, used in getTokenBalance is: ', address);
 
       const data = await alchemy.core.getTokenBalances(address);
       console.log(`The balances of ${address} address are:`, data);
 
-      //setResults(data);
-
-      /* const tokenDataPromises = [];
-
-      for (let i = 0; i < data.tokenBalances.length; i++) {
-        const tokenData = alchemy.core.getTokenMetadata(
-          data.tokenBalances[i].contractAddress
-        );
-        tokenDataPromises.push(tokenData);
-      } */
-
-      /* Limit concurrent requests to avoid overwhelming the server 
-      Instead of sending 100 requests at once, the app sends 5 at a time.
-      Once one of the 5 requests finishes, the next request from the remaining 95 is sent.
-      This process continues until all 100 tokens are processed.*/
-
+           
       //console.log('cache is: ', tokenMetadataCache);
 
       const nonZeroTokenBalances = data.tokenBalances.filter(
@@ -146,7 +124,7 @@ function App() {
         const contractAddress = token.contractAddress;
         const cachedMetadata = getCachedTokenMetadata(contractAddress);
         if (cachedMetadata) {
-          //console.log('Metadata fetched from cache:', cachedMetadata);
+          console.log('Metadata fetched from cache:', cachedMetadata);
           return cachedMetadata;
         }
         // If not cached, fetch metadata and store in cache
@@ -167,9 +145,7 @@ function App() {
         setHasQueried(true); // Re-enable token grid display
         return filteredData; // Update token balances
       });
-      //setTokenDataObjects(await Promise.all(tokenDataPromises));
-      //setHasQueried(true);
-      //console.log('tokenDataObjects in getTokenBalance are: ', tokenDataObjects);
+      
     }
     catch (error) {
       console.error("Error fetching token balances:", error);
@@ -184,13 +160,9 @@ function App() {
   //console.log('results are: ', results.tokenBalances?.length);
 
   //console.log('tokenDataObjects are: ', tokenDataObjects[0]?.decimals);
-
-  /* Debounce the onChange handler for the input field
-  to reduce unnecessary re-renders and invalid queries while the user types. */
+  
   const handleInputChange = debounce((value) => setUserAddress(value), 300);
 
-  /* lazy rendering for large token lists. 
-  Improves performance for large token lists by rendering only visible items */
   const rowRenderer = ({ index, key, style }) => {
     const token = results.tokenBalances[index];
     const tokenData = tokenDataObjects[index];
@@ -289,10 +261,10 @@ function App() {
       ) : hasQueried ? (
         results.tokenBalances.length > 0 ? (
           <List
-          width={800} // Adjust based on your container width
-          height={600} // Height of the scrollable area
-          rowHeight={150} // Approximate height of each row
-          rowCount={results.tokenBalances.length} // Total rows
+          width={800} 
+          height={600} 
+          rowHeight={150} 
+          rowCount={results.tokenBalances.length} 
           rowRenderer={rowRenderer} // Function to render each row
           className="token-list"
         />
