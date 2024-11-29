@@ -1,5 +1,6 @@
 import { Alchemy, Network, Utils } from 'alchemy-sdk';
 import { BrowserProvider, ethers } from 'ethers';
+import { startTransition } from 'react';
 import pLimit from 'p-limit';
 import { useState } from 'react';
 import './App.css';
@@ -108,7 +109,7 @@ function App() {
       const data = await alchemy.core.getTokenBalances(address);
       //console.log(`The balances of ${address} address are:`, data);
 
-      setResults(data);
+      //setResults(data);
 
       /* const tokenDataPromises = [];
 
@@ -127,7 +128,7 @@ function App() {
       //console.log('cache is: ', tokenMetadataCache);
 
       const limit = pLimit(5); // Adjust concurrency level
-      const tokenDataPromises = data.tokenBalances.map(async(token) => {
+      const tokenDataPromises = data.tokenBalances.map(async (token) => {
         const contractAddress = token.contractAddress;
         const cachedMetadata = getCachedTokenMetadata(contractAddress);
         if (cachedMetadata) {
@@ -138,15 +139,22 @@ function App() {
         console.log('Fetching metadata for address:', contractAddress);
         const metadata = await limit(() => alchemy.core.getTokenMetadata(contractAddress));
         //console.log(metadata);
-        
+
         cacheTokenMetadata(contractAddress, metadata);
 
         return metadata;
       }
       );
 
-      setTokenDataObjects(await Promise.all(tokenDataPromises));
-      setHasQueried(true);
+      const tokenData = await Promise.all(tokenDataPromises);
+      // Batch updates for React state variables
+      setResults((prevResults) => {
+        setTokenDataObjects(tokenData); // Update token metadata
+        setHasQueried(true); // Re-enable token grid display
+        return data; // Update token balances
+      });
+      //setTokenDataObjects(await Promise.all(tokenDataPromises));
+      //setHasQueried(true);
       console.log('tokenDataObjects in getTokenBalance are: ', tokenDataObjects);
     }
     catch (error) {
