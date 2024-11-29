@@ -78,7 +78,7 @@ function App() {
     }
   }
 
-  function formatTokenBalance(balance, maxIntegerDigits = 6, maxDecimalDigits = 4) {
+  function formatTokenBalance(balance, maxIntegerDigits = 3, maxDecimalDigits = 3) {
     //console.log(balance);
 
     // Split into integer and decimal parts
@@ -131,8 +131,18 @@ function App() {
 
       //console.log('cache is: ', tokenMetadataCache);
 
+      const nonZeroTokenBalances = data.tokenBalances.filter(
+        token => token.tokenBalance !== '0x0000000000000000000000000000000000000000000000000000000000000000'
+      );
+  
+      // Update the data object with filtered balances
+      const filteredData = {
+        ...data,
+        tokenBalances: nonZeroTokenBalances
+      };
+
       const limit = pLimit(10); // Adjust concurrency level
-      const tokenDataPromises = data.tokenBalances.map(async (token) => {
+      const tokenDataPromises = filteredData.tokenBalances.map(async (token) => {
         const contractAddress = token.contractAddress;
         const cachedMetadata = getCachedTokenMetadata(contractAddress);
         if (cachedMetadata) {
@@ -155,7 +165,7 @@ function App() {
       setResults((prevResults) => {
         setTokenDataObjects(tokenData); // Update token metadata
         setHasQueried(true); // Re-enable token grid display
-        return data; // Update token balances
+        return filteredData; // Update token balances
       });
       //setTokenDataObjects(await Promise.all(tokenDataPromises));
       //setHasQueried(true);
@@ -182,7 +192,7 @@ function App() {
   /* lazy rendering for large token lists. 
   Improves performance for large token lists by rendering only visible items */
   const rowRenderer = ({ index, key, style }) => {
-    const tokenBalance = results.tokenBalances[index];
+    const token = results.tokenBalances[index];
     const tokenData = tokenDataObjects[index];
 
     return (
@@ -194,16 +204,16 @@ function App() {
           <b>Balance:</b>{' '}
           <span
             title={Utils.formatUnits(
-              tokenBalance?.tokenBalance || '0',
+              token?.tokenBalance || '0',
               tokenData?.decimals || 0
             )}
           >
             {formatTokenBalance(
               Utils.formatUnits(
-                tokenBalance?.tokenBalance || '0',
-                tokenData?.decimals || 0
+                token?.tokenBalance || '0'
               )
             )}
+           
           </span>
         </div>
         {tokenData?.logo && (
