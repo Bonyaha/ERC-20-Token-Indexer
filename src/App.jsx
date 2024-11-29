@@ -1,6 +1,6 @@
 import { Alchemy, Network, Utils } from 'alchemy-sdk';
 import { BrowserProvider, ethers } from 'ethers';
-import { startTransition } from 'react';
+import { debounce } from 'lodash';
 import pLimit from 'p-limit';
 import { useState } from 'react';
 import './App.css';
@@ -35,6 +35,8 @@ const config = {
 };
 
 const alchemy = new Alchemy(config);
+
+
 
 function App() {
   const [userAddress, setUserAddress] = useState('');
@@ -127,7 +129,7 @@ function App() {
 
       //console.log('cache is: ', tokenMetadataCache);
 
-      const limit = pLimit(5); // Adjust concurrency level
+      const limit = pLimit(10); // Adjust concurrency level
       const tokenDataPromises = data.tokenBalances.map(async (token) => {
         const contractAddress = token.contractAddress;
         const cachedMetadata = getCachedTokenMetadata(contractAddress);
@@ -171,7 +173,9 @@ function App() {
 
   console.log('tokenDataObjects are: ', tokenDataObjects[0]?.decimals);
 
-
+  /* Debounce the onChange handler for the input field
+  to reduce unnecessary re-renders and invalid queries while the user types. */
+  const handleInputChange = debounce((value) => setUserAddress(value), 300);
   return (
     <div className="container">
       <div className="header">
@@ -210,7 +214,7 @@ function App() {
         <input
           id="inputAddress"
           type="text"
-          onChange={(e) => setUserAddress(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           className="address-input"
           placeholder="Enter address..."
           disabled={loading}
