@@ -1,45 +1,16 @@
-import { Alchemy, Network, Utils } from 'alchemy-sdk';
 import { BrowserProvider, ethers } from 'ethers';
 import { debounce } from 'lodash';
-import List from 'react-virtualized/dist/commonjs/List';
 import 'react-virtualized/styles.css';
 import pLimit from 'p-limit';
 import { useState } from 'react';
 import './App.css';
+
+import { alchemy,alchemyConfig } from './config';
+import { 
+  getCachedTokenMetadata, 
+  cacheTokenMetadata,   
+} from './utils';
 import TokenList from './TokenList.jsx';
-
-const CACHE_EXPIRY_MS = 2 * 60 * 60 * 1000; // 1 day in milliseconds
-// Helper functions for localStorage-based cache
-function getCachedTokenMetadata(contractAddress) {
-  const cacheEntry = JSON.parse(localStorage.getItem(`tokenMetadata_${contractAddress}`));
-  if (!cacheEntry) return null;
-
-  const { metadata, timestamp } = cacheEntry;
-  if (Date.now() - timestamp > CACHE_EXPIRY_MS) {
-    // If the cached entry is expired, remove it
-    localStorage.removeItem(`tokenMetadata_${contractAddress}`);
-    return null;
-  }
-
-  return metadata;
-}
-
-function cacheTokenMetadata(contractAddress, metadata) {
-  const cacheEntry = {
-    metadata,
-    timestamp: Date.now(),
-  };
-  localStorage.setItem(`tokenMetadata_${contractAddress}`, JSON.stringify(cacheEntry));
-}
-
-const config = {
-  apiKey: 'yHDa2R9iH9MBWIMUHUNH593wsGPrifZn',
-  network: Network.ETH_MAINNET,
-};
-
-const alchemy = new Alchemy(config);
-
-
 
 function App() {
   const [userAddress, setUserAddress] = useState('');
@@ -50,6 +21,8 @@ function App() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  console.log(alchemyConfig);
+  
   // Connect Wallet Function
   async function connectWallet() {
     if (typeof window.ethereum !== "undefined") {
@@ -78,25 +51,7 @@ function App() {
       await getTokenBalance(userAddress);
     }
   }
-
-  function formatTokenBalance(balance, maxIntegerDigits = 3, maxDecimalDigits = 3) {
-    //console.log(balance);
-
-    // Split into integer and decimal parts
-    const [integer, decimal] = balance.split('.');
-
-    // Truncate integer part if too long
-    const truncatedInteger = integer.length > maxIntegerDigits
-      ? integer.slice(0, maxIntegerDigits) + '...'
-      : integer;
-
-    // Handle decimal part
-    const formattedDecimal = decimal
-      ? '.' + decimal.slice(0, maxDecimalDigits)
-      : '';
-
-    return truncatedInteger + formattedDecimal;
-  }
+  
 
   async function getTokenBalance(address) {
     setLoading(true);
@@ -155,12 +110,6 @@ function App() {
     }
 
   }
-
-  //console.log('address is: ', userAddress);
-  //console.log('hasQueried: ', hasQueried);
-  //console.log('results are: ', results.tokenBalances?.length);
-
-  //console.log('tokenDataObjects are: ', tokenDataObjects[0]?.decimals);
 
   const handleInputChange = debounce((value) => setUserAddress(value), 300);
 
