@@ -6,6 +6,7 @@ import 'react-virtualized/styles.css';
 import pLimit from 'p-limit';
 import { useState } from 'react';
 import './App.css';
+import TokenList from './TokenList.jsx';
 
 const CACHE_EXPIRY_MS = 2 * 60 * 60 * 1000; // 1 day in milliseconds
 // Helper functions for localStorage-based cache
@@ -97,7 +98,7 @@ function App() {
     return truncatedInteger + formattedDecimal;
   }
 
-  async function getTokenBalance(address) {    
+  async function getTokenBalance(address) {
     setLoading(true);
     //setHasQueried(false);
     try {
@@ -106,13 +107,13 @@ function App() {
       const data = await alchemy.core.getTokenBalances(address);
       console.log(`The balances of ${address} address are:`, data);
 
-           
+
       //console.log('cache is: ', tokenMetadataCache);
 
       const nonZeroTokenBalances = data.tokenBalances.filter(
         token => token.tokenBalance !== '0x0000000000000000000000000000000000000000000000000000000000000000'
       );
-  
+
       // Update the data object with filtered balances
       const filteredData = {
         ...data,
@@ -145,7 +146,7 @@ function App() {
         setHasQueried(true); // Re-enable token grid display
         return filteredData; // Update token balances
       });
-      
+
     }
     catch (error) {
       console.error("Error fetching token balances:", error);
@@ -160,44 +161,8 @@ function App() {
   //console.log('results are: ', results.tokenBalances?.length);
 
   //console.log('tokenDataObjects are: ', tokenDataObjects[0]?.decimals);
-  
+
   const handleInputChange = debounce((value) => setUserAddress(value), 300);
-
-  const rowRenderer = ({ index, key, style }) => {
-    const token = results.tokenBalances[index];
-    const tokenData = tokenDataObjects[index];
-
-    return (
-      <div key={key} style={style} className="token-card">
-        <div className="token-info">
-          <b>Symbol:</b> {tokenData?.symbol || 'N/A'}
-        </div>
-        <div className="token-info">
-          <b>Balance:</b>{' '}
-          <span
-            title={Utils.formatUnits(
-              token?.tokenBalance || '0',
-              tokenData?.decimals || 0
-            )}
-          >
-            {formatTokenBalance(
-              Utils.formatUnits(
-                token?.tokenBalance || '0'
-              )
-            )}
-           
-          </span>
-        </div>
-        {tokenData?.logo && (
-          <img
-            src={tokenData.logo}
-            alt={`${tokenData.symbol} logo`}
-            className="token-logo"
-          />
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="container">
@@ -260,14 +225,10 @@ function App() {
         </div>
       ) : hasQueried ? (
         results.tokenBalances.length > 0 ? (
-          <List
-          width={800} 
-          height={600} 
-          rowHeight={150} 
-          rowCount={results.tokenBalances.length} 
-          rowRenderer={rowRenderer} // Function to render each row
-          className="token-list"
-        />
+          <TokenList
+            results={results}
+            tokenDataObjects={tokenDataObjects}
+          />
         )
           : (
             <p className="no-tokens-text">No tokens found for this address.</p>

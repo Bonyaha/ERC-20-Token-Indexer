@@ -178,3 +178,80 @@
   text-align: center;
   margin-top: 10px;
 }
+
+
+/* Token List CSS Styles */
+
+.token-list-container {
+  width: 100%;
+  height: 600px;
+  background-color: rgba(49, 130, 206, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.token-card-list {
+  transition: background-color 0.2s ease;
+}
+
+.token-card-list:hover {
+  background-color: rgba(49, 130, 206, 0.1);
+}
+
+.token-list-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px;
+}
+
+.token-list-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.token-list-logo-placeholder {
+  width: 60px;
+  height: 60px;
+  background-color: rgba(49, 130, 206, 0.2);
+  border-radius: 50%;
+}
+
+.token-list-details {
+  flex-grow: 1;
+}
+
+.token-list-symbol {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 5px;
+}
+
+.token-list-name {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.token-list-balance {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.balance-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.balance-value {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.custom-token-list {
+  outline: none !important;
+}
