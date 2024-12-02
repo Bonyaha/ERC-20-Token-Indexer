@@ -14,3 +14,5 @@ It limit concurrent requests to avoid overwhelming the server:
 
 ## rowRenderer
 - **Purpose**: lazy rendering for large token lists. Improves performance for large token lists by rendering only visible items. It is a callback function that React Virtualized automatically calls for each row it needs to render. React Virtualized takes care of calling the function and passing the appropriate parameters (index, key, style) whenever a row needs to be rendered.
+
+## test branch for first implementation of new features
