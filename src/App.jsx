@@ -21,8 +21,7 @@ function App() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  console.log(alchemyConfig);
-  
+    
   // Connect Wallet Function
   async function connectWallet() {
     if (typeof window.ethereum !== "undefined") {
@@ -63,8 +62,6 @@ function App() {
       console.log(`The balances of ${address} address are:`, data);
 
 
-      //console.log('cache is: ', tokenMetadataCache);
-
       const nonZeroTokenBalances = data.tokenBalances.filter(
         token => token.tokenBalance !== '0x0000000000000000000000000000000000000000000000000000000000000000'
       );
@@ -79,15 +76,13 @@ function App() {
       const tokenDataPromises = filteredData.tokenBalances.map(async (token) => {
         const contractAddress = token.contractAddress;
         const cachedMetadata = getCachedTokenMetadata(contractAddress);
-        if (cachedMetadata) {
-          console.log('Metadata fetched from cache:', cachedMetadata);
+        if (cachedMetadata) {          
           return cachedMetadata;
         }
         // If not cached, fetch metadata and store in cache
         console.log('Fetching metadata for address:', contractAddress);
         const metadata = await limit(() => alchemy.core.getTokenMetadata(contractAddress));
-        //console.log(metadata);
-
+        
         cacheTokenMetadata(contractAddress, metadata);
 
         return metadata;
